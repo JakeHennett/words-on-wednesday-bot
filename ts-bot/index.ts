@@ -27,13 +27,40 @@ async function main() {
     console.log("Just posted!")
 }
 
-main();
+// main(); //I think this runs it once, outside the cron job
+
+async function wednesday() {
+    createPost("Words on Wednesday!!")
+}
+
+async function thursday() {
+    createPost("Throwback Thursday!!")
+}
+
+async function friday() {
+    createPost("It's Friday!!")
+}
+
+async function createPost(postText){
+    await agent.login({ identifier: process.env.BLUESKY_USERNAME!, password: process.env.BLUESKY_PASSWORD!})
+    await agent.post({
+        text: postText
+    });
+    console.log("Just posted!")
+
+}
 
 
 // Run this on a cron job
 const scheduleExpressionMinute = '* * * * *'; // Run once every minute for testing
 const scheduleExpression = '0 */3 * * *'; // Run once every three hours in prod
+const wednesdayScheduleExpression = '30 8 * * 3'; // Run Wednesday at 8:30am
+const fridayScheduleExpression = '30 9 * * 5'; // Run Friday at 9:30am
 
-const job = new CronJob(scheduleExpression, main); // change to scheduleExpressionMinute for testing
+// const job = new CronJob(scheduleExpression, main); // change to scheduleExpressionMinute for testing
+const words_on_wednesday_job = new CronJob(wednesdayScheduleExpression, wednesday);
+const friday_job = new CronJob(fridayScheduleExpression, friday)
 
-job.start();
+// job.start();
+words_on_wednesday_job.start();
+friday_job.start();
