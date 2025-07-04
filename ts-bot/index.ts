@@ -2,8 +2,11 @@ import { BskyAgent } from '@atproto/api';
 import * as dotenv from 'dotenv';
 import { CronJob } from 'cron';
 import * as process from 'process';
+    import Parser from 'rss-parser';
 
 dotenv.config();
+
+
 
 // Create a Bluesky Agent 
 const agent = new BskyAgent({
@@ -66,6 +69,25 @@ async function createPost(postText){
 
 }
 
+async function readRSS(){
+    
+const parser = new Parser();
+
+(async () => {
+  const feed = await parser.parseURL('https://www.reddit.com/.rss');
+  console.log(`Feed Title: ${feed.title}\n`);
+
+  feed.items.forEach(item => {
+    console.log(`Title: ${item.title}`);
+    console.log(`Link: ${item.link}`);
+    console.log(`Published: ${item.pubDate}`);
+    console.log('---');
+  });
+})();
+
+}
+
+readRSS();
 
 // Run this on a cron job
 const scheduleExpressionMinute = '* * * * *'; // Run once every minute for testing

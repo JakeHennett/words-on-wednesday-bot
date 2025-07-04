@@ -32,11 +32,15 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const api_1 = require("@atproto/api");
 const dotenv = __importStar(require("dotenv"));
 const cron_1 = require("cron");
 const process = __importStar(require("process"));
+const rss_parser_1 = __importDefault(require("rss-parser"));
 dotenv.config();
 // Create a Bluesky Agent 
 const agent = new api_1.BskyAgent({
@@ -86,6 +90,20 @@ async function createPost(postText) {
     });
     console.log("Just posted!");
 }
+async function readRSS() {
+    const parser = new rss_parser_1.default();
+    (async () => {
+        const feed = await parser.parseURL('https://www.reddit.com/.rss');
+        console.log(`Feed Title: ${feed.title}\n`);
+        feed.items.forEach(item => {
+            console.log(`Title: ${item.title}`);
+            console.log(`Link: ${item.link}`);
+            console.log(`Published: ${item.pubDate}`);
+            console.log('---');
+        });
+    })();
+}
+readRSS();
 // Run this on a cron job
 const scheduleExpressionMinute = '* * * * *'; // Run once every minute for testing
 const scheduleExpression = '0 */3 * * *'; // Run once every three hours in prod
