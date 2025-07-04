@@ -42,10 +42,18 @@ dotenv.config();
 const agent = new api_1.BskyAgent({
     service: 'https://bsky.social',
 });
+/*
+Modern Monday - posts between 1 year and 1 month ago
+Tech Tuesday?
+Words on Wednesday
+Throwback Thursday - blogspot posts older than 1 year ago
+Friday - WordPress post
+*/
 async function main() {
     await agent.login({ identifier: process.env.BLUESKY_USERNAME, password: process.env.BLUESKY_PASSWORD });
+    const datetext = `The current date is  ${Date()}`;
     await agent.post({
-        text: "🙂"
+        text: datetext
     });
     console.log("Just posted!");
 }
