@@ -29,6 +29,18 @@ async function main() {
 
 // main(); //I think this runs it once, outside the cron job
 
+async function sunday() {
+    createPost("")
+}
+
+async function monday() {
+    createPost("Modern Monday!")
+}
+
+async function tuesday() {
+    createPost("")
+}
+
 async function wednesday() {
     createPost("Words on Wednesday!!")
 }
@@ -39,6 +51,10 @@ async function thursday() {
 
 async function friday() {
     createPost("It's Friday!!")
+}
+
+async function saturday() {
+    createPost("")
 }
 
 async function createPost(postText){
@@ -58,9 +74,9 @@ const wednesdayScheduleExpression = '30 8 * * 3'; // Run Wednesday at 8:30am
 const fridayScheduleExpression = '30 9 * * 5'; // Run Friday at 9:30am
 
 // const job = new CronJob(scheduleExpression, main); // change to scheduleExpressionMinute for testing
-const words_on_wednesday_job = new CronJob(wednesdayScheduleExpression, wednesday);
+const wednesday_job = new CronJob(wednesdayScheduleExpression, wednesday);
 const friday_job = new CronJob(fridayScheduleExpression, friday)
 
 // job.start();
-words_on_wednesday_job.start();
+wednesday_job.start();
 friday_job.start();
