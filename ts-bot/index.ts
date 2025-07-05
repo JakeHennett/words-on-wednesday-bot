@@ -74,7 +74,8 @@ async function readRSS(){
 const parser = new Parser();
 
 (async () => {
-  const feed = await parser.parseURL('https://www.reddit.com/.rss');
+//   const feed = await parser.parseURL('https://www.reddit.com/.rss');
+  const feed = await parser.parseURL('https://jakehennett.blogspot.com/feeds/posts/default');
   console.log(`Feed Title: ${feed.title}\n`);
 
   feed.items.forEach(item => {

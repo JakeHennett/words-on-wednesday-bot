@@ -93,7 +93,8 @@ async function createPost(postText) {
 async function readRSS() {
     const parser = new rss_parser_1.default();
     (async () => {
-        const feed = await parser.parseURL('https://www.reddit.com/.rss');
+        //   const feed = await parser.parseURL('https://www.reddit.com/.rss');
+        const feed = await parser.parseURL('https://jakehennett.blogspot.com/feeds/posts/default');
         console.log(`Feed Title: ${feed.title}\n`);
         feed.items.forEach(item => {
             console.log(`Title: ${item.title}`);
