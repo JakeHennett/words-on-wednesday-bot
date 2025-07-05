@@ -94,7 +94,7 @@ async function readRSS() {
     const parser = new rss_parser_1.default();
     (async () => {
         //   const feed = await parser.parseURL('https://www.reddit.com/.rss');
-        const feed = await parser.parseURL('https://jakehennett.blogspot.com/feeds/posts/default');
+        const feed = await parser.parseURL('https://jakehennett.blogspot.com/feeds/posts/default?max-results=150&start-index=149');
         console.log(`Feed Title: ${feed.title}\n`);
         feed.items.forEach(item => {
             console.log(`Title: ${item.title}`);
@@ -102,6 +102,7 @@ async function readRSS() {
             console.log(`Published: ${item.pubDate}`);
             console.log('---');
         });
+        console.log(feed.items.length);
     })();
 }
 readRSS();
