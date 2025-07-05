@@ -42,6 +42,11 @@ const cron_1 = require("cron");
 const process = __importStar(require("process"));
 const rss_parser_1 = __importDefault(require("rss-parser"));
 dotenv.config();
+//TODO:
+// turn post into working link
+// filter to given date range
+// integrate with wordpress
+// Add to README npx tsc / node index.js
 // Create a Bluesky Agent
 const agent = new api_1.BskyAgent({
     service: "https://bsky.social",
@@ -53,18 +58,6 @@ const agent = new api_1.BskyAgent({
   Throwback Thursday - blogspot posts older than 1 year ago
   Friday - WordPress post
   */
-async function main() {
-    await agent.login({
-        identifier: process.env.BLUESKY_USERNAME,
-        password: process.env.BLUESKY_PASSWORD,
-    });
-    const datetext = `The current date is ${Date()}`;
-    await agent.post({
-        text: datetext,
-    });
-    console.log("Just posted!");
-}
-// main(); //I think this runs it once, outside the cron job
 async function sunday() {
     createPost("");
 }
@@ -136,7 +129,7 @@ async function readBlogspotRSS() {
     return posts;
 }
 // readBlogspotRSS();
-daily();
+daily(); //uncomment this to post a random post
 // Run this on a cron job
 const scheduleExpressionMinute = "* * * * *"; // Run once every minute for testing
 const scheduleExpression = "0 */3 * * *"; // Run once every three hours in prod
