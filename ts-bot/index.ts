@@ -61,6 +61,15 @@ async function saturday() {
   createPost("");
 }
 
+async function daily() {
+  const posts = readBlogspotRSS();
+  const randomNumber = Math.floor(Math.random() * (await posts).length) + 1;
+  console.log(randomNumber);
+  const post = (await posts).at(randomNumber);
+  const postText = `${post.title}\n${post.link}`;
+  createPost(postText);
+}
+
 async function createPost(postText) {
   await agent.login({
     identifier: process.env.BLUESKY_USERNAME!,
@@ -93,49 +102,36 @@ async function readBlogspotRSS() {
     iter += page;
   }
 
-  console.log(posts.length);
+  //   console.log("We should have a full list of all posts here");
+  //   let displayCount = 1;
+  //   posts.forEach((post) => {
+  //     console.log(displayCount);
+  //     displayCount++;
+  //     console.log(`Title: ${post.title}`);
+  //     console.log(`Link: ${post.link}`);
+  //     console.log(`Published: ${post.pubDate}`);
+  //     console.log("---");
+  //   });
 
-  //static
-  //   (async () => {
-  //     //   const feed = await parser.parseURL('https://www.reddit.com/.rss');
-  //     rssURL = `https://jakehennett.blogspot.com/feeds/posts/default?max-results=${page}&start-index=${iter}`;
-  //     const feed = await parser.parseURL(rssURL);
-
-  //     // "https://jakehennett.blogspot.com/feeds/posts/default?max-results=150&start-index=149";
-  //     console.log(`Feed Title: ${feed.title}\n`);
-
-  //     feed.items.forEach((item) => {
-  //       posts.push(item);
-  //       console.log(`Title: ${item.title}`);
-  //       console.log(`Link: ${item.link}`);
-  //       console.log(`Published: ${item.pubDate}`);
-  //       console.log("---");
-  //     });
-
-  //     console.log(feed.items.length);
-  //   })();
-
-  console.log("We should have a full list of all posts here");
-  posts.forEach((post) => {
-    console.log(`Title: ${post.title}`);
-    console.log(`Link: ${post.link}`);
-    console.log(`Published: ${post.pubDate}`);
-    console.log("---");
-  });
+  return posts;
 }
 
-readBlogspotRSS();
+// readBlogspotRSS();
+// daily();
 
 // Run this on a cron job
 const scheduleExpressionMinute = "* * * * *"; // Run once every minute for testing
 const scheduleExpression = "0 */3 * * *"; // Run once every three hours in prod
 const wednesdayScheduleExpression = "30 8 * * 3"; // Run Wednesday at 8:30am
 const fridayScheduleExpression = "30 9 * * 5"; // Run Friday at 9:30am
+const scheduleExpressionNoonDaily = "0 12 * * *"; // Run every day at noon
 
 // const job = new CronJob(scheduleExpression, main); // change to scheduleExpressionMinute for testing
 const wednesday_job = new CronJob(wednesdayScheduleExpression, wednesday);
 const friday_job = new CronJob(fridayScheduleExpression, friday);
+const daily_job = new CronJob(scheduleExpressionNoonDaily, daily);
 
 // job.start();
 wednesday_job.start();
 friday_job.start();
+daily_job.start();
