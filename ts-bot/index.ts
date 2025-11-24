@@ -54,12 +54,34 @@ async function saturday() {
 }
 
 async function daily() {
-  const posts = readBlogspotRSS();
-  const randomNumber = Math.floor(Math.random() * (await posts).length) + 1;
-  console.log(randomNumber);
-  const post = (await posts).at(randomNumber);
-  const postText = `${post.title}\n${post.link}`;
-  createPost(postText);
+  const posts = await readBlogspotRSS();
+  const randomNumber = Math.floor(Math.random() * posts.length);
+  const post = posts[randomNumber];
+
+  const link = post.link.trim().startsWith("http")
+    ? post.link.trim()
+    : `https://${post.link.trim()}`;
+  const postText = post.title;
+
+  await agent.post({
+    text: postText,
+    embed: {
+      $type: "app.bsky.embed.external",
+      external: {
+        uri: link,
+        title: post.title,
+        description: post.description || "Read more on the blog",
+        thumb: post.image || undefined, // optional thumbnail URL
+      },
+    },
+  });
+
+  // const posts = readBlogspotRSS();
+  // const randomNumber = Math.floor(Math.random() * (await posts).length) + 1;
+  // console.log(randomNumber);
+  // const post = (await posts).at(randomNumber);
+  // const postText = `${post.title}\n${post.link}`;
+  // createPost(postText);
 }
 
 async function createPost(postText) {

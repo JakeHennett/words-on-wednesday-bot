@@ -1,40 +1,65 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
+var __createBinding =
+  (this && this.__createBinding) ||
+  (Object.create
+    ? function (o, m, k, k2) {
+        if (k2 === undefined) k2 = k;
+        var desc = Object.getOwnPropertyDescriptor(m, k);
+        if (
+          !desc ||
+          ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)
+        ) {
+          desc = {
+            enumerable: true,
+            get: function () {
+              return m[k];
+            },
+          };
+        }
+        Object.defineProperty(o, k2, desc);
+      }
+    : function (o, m, k, k2) {
+        if (k2 === undefined) k2 = k;
+        o[k2] = m[k];
+      });
+var __setModuleDefault =
+  (this && this.__setModuleDefault) ||
+  (Object.create
+    ? function (o, v) {
+        Object.defineProperty(o, "default", { enumerable: true, value: v });
+      }
+    : function (o, v) {
+        o["default"] = v;
+      });
+var __importStar =
+  (this && this.__importStar) ||
+  (function () {
+    var ownKeys = function (o) {
+      ownKeys =
+        Object.getOwnPropertyNames ||
+        function (o) {
+          var ar = [];
+          for (var k in o)
+            if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+          return ar;
         };
-        return ownKeys(o);
+      return ownKeys(o);
     };
     return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
+      if (mod && mod.__esModule) return mod;
+      var result = {};
+      if (mod != null)
+        for (var k = ownKeys(mod), i = 0; i < k.length; i++)
+          if (k[i] !== "default") __createBinding(result, mod, k[i]);
+      __setModuleDefault(result, mod);
+      return result;
     };
-})();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+  })();
+var __importDefault =
+  (this && this.__importDefault) ||
+  function (mod) {
+    return mod && mod.__esModule ? mod : { default: mod };
+  };
 Object.defineProperty(exports, "__esModule", { value: true });
 const api_1 = require("@atproto/api");
 const dotenv = __importStar(require("dotenv"));
@@ -49,7 +74,7 @@ dotenv.config();
 // Add to README npx tsc / node index.js
 // Create a Bluesky Agent
 const agent = new api_1.BskyAgent({
-    service: "https://bsky.social",
+  service: "https://bsky.social",
 });
 /*
   Modern Monday - posts between 1 year and 1 month ago
@@ -59,74 +84,124 @@ const agent = new api_1.BskyAgent({
   Friday - WordPress post
   */
 async function sunday() {
-    createPost("");
+  createPost("");
 }
 async function monday() {
-    createPost("Modern Monday!");
+  createPost("Modern Monday!");
 }
 async function tuesday() {
-    createPost("");
+  createPost("");
 }
 async function wednesday() {
-    createPost("Words on Wednesday!!");
+  createPost("Words on Wednesday!!");
 }
 async function thursday() {
-    createPost("Throwback Thursday!!");
+  createPost("Throwback Thursday!!");
 }
 async function friday() {
-    createPost("It's Friday!!");
+  createPost("It's Friday!!");
 }
 async function saturday() {
-    createPost("");
+  createPost("");
 }
+
+// async function daily() {
+//   const posts = readBlogspotRSS();
+//   console.log(posts[0]);
+//   const randomNumber = Math.floor(Math.random() * (await posts).length) + 1;
+//   console.log(randomNumber);
+//   const post = (await posts).at(randomNumber);
+//   const postText = `${post.title}\n${post.link}`;
+//   createPost(postText);
+// }
+
 async function daily() {
-    const posts = readBlogspotRSS();
-    const randomNumber = Math.floor(Math.random() * (await posts).length) + 1;
-    console.log(randomNumber);
-    const post = (await posts).at(randomNumber);
-    const postText = `${post.title}\n${post.link}`;
-    createPost(postText);
+  const posts = await readBlogspotRSS();
+  const randomNumber = Math.floor(Math.random() * posts.length);
+  const post = posts[randomNumber];
+
+  // Validate and normalize link
+  let link = post.link?.trim() || "";
+  if (!/^https?:\/\//i.test(link)) {
+    link = `https://${link}`;
+  }
+
+  // If link is still invalid, bail out
+  if (!link || link === "https://") {
+    console.error("Invalid link for embed:", post);
+    return;
+  }
+
+  const postText = post.title;
+  const description =
+    post.contentSnippet || post.content || "Read more on the blog";
+
+  await createPost(postText, link, post.title, description);
 }
+
 async function createPost(postText) {
-    await agent.login({
-        identifier: process.env.BLUESKY_USERNAME,
-        password: process.env.BLUESKY_PASSWORD,
-    });
-    await agent.post({
-        text: postText,
-    });
-    console.log("Just posted!");
+  await agent.login({
+    identifier: process.env.BLUESKY_USERNAME,
+    password: process.env.BLUESKY_PASSWORD,
+  });
+  await agent.post({
+    text: postText,
+  });
+  console.log("Just posted!");
 }
+
+async function createPost(postText, postLink, postTitle, postDescription) {
+  await agent.login({
+    identifier: process.env.BLUESKY_USERNAME,
+    password: process.env.BLUESKY_PASSWORD,
+  });
+
+  await agent.post({
+    text: postText,
+    embed: {
+      $type: "app.bsky.embed.external",
+      external: {
+        uri: postLink,
+        title: postTitle,
+        description: postDescription || "Read more on the blog",
+        // Optional: add a thumbnail if you have one
+        // thumb: "https://your-image-url.com/image.jpg"
+      },
+    },
+  });
+
+  console.log("Just posted with rich embed!");
+}
+
 async function readBlogspotRSS() {
-    let iter = 1;
-    const page = 25;
-    let rssURL = ``;
-    let posts = new Array(); // An empty array that can store any type
-    const parser = new rss_parser_1.default();
-    //dynamic
-    while (true) {
-        rssURL = `https://jakehennett.blogspot.com/feeds/posts/default?max-results=${page}&start-index=${iter}`;
-        console.log(rssURL);
-        const feed = await parser.parseURL(rssURL);
-        console.log(feed.items.length);
-        if (feed.items.length <= 0)
-            break;
-        feed.items.forEach((item) => {
-            posts.push(item);
-        });
-        iter += page;
-    }
-    //   console.log("We should have a full list of all posts here");
-    //   let displayCount = 1;
-    //   posts.forEach((post) => {
-    //     console.log(displayCount);
-    //     displayCount++;
-    //     console.log(`Title: ${post.title}`);
-    //     console.log(`Link: ${post.link}`);
-    //     console.log(`Published: ${post.pubDate}`);
-    //     console.log("---");
-    //   });
-    return posts;
+  let iter = 1;
+  const page = 25;
+  let rssURL = ``;
+  let posts = new Array(); // An empty array that can store any type
+  const parser = new rss_parser_1.default();
+  //dynamic
+  while (true) {
+    rssURL = `https://jakehennett.blogspot.com/feeds/posts/default?max-results=${page}&start-index=${iter}`;
+    console.log(rssURL);
+    const feed = await parser.parseURL(rssURL);
+    console.log(feed.items.length);
+    if (feed.items.length <= 0) break;
+    feed.items.forEach((item) => {
+      posts.push(item);
+    });
+    iter += page;
+  }
+  //   console.log("We should have a full list of all posts here");
+  //   let displayCount = 1;
+  //   posts.forEach((post) => {
+  //     console.log(displayCount);
+  //     displayCount++;
+  //     console.log(`Title: ${post.title}`);
+  //     console.log(`Link: ${post.link}`);
+  //     console.log(`Published: ${post.pubDate}`);
+  //     console.log("---");
+  //   });
+  return posts;
 }
 // readBlogspotRSS();
 daily(); //uncomment this to post a random post
@@ -137,7 +212,10 @@ const wednesdayScheduleExpression = "30 8 * * 3"; // Run Wednesday at 8:30am
 const fridayScheduleExpression = "30 9 * * 5"; // Run Friday at 9:30am
 const scheduleExpressionNoonDaily = "0 12 * * *"; // Run every day at noon
 // const job = new CronJob(scheduleExpression, main); // change to scheduleExpressionMinute for testing
-const wednesday_job = new cron_1.CronJob(wednesdayScheduleExpression, wednesday);
+const wednesday_job = new cron_1.CronJob(
+  wednesdayScheduleExpression,
+  wednesday
+);
 const friday_job = new cron_1.CronJob(fridayScheduleExpression, friday);
 const daily_job = new cron_1.CronJob(scheduleExpressionNoonDaily, daily);
 // job.start();
