@@ -66,6 +66,7 @@ const dotenv = __importStar(require("dotenv"));
 const cron_1 = require("cron");
 const process = __importStar(require("process"));
 const rss_parser_1 = __importDefault(require("rss-parser"));
+// const { fetchMetadata } = require("./metadata");
 dotenv.config();
 //TODO:
 // turn post into working link
@@ -117,6 +118,11 @@ async function saturday() {
 
 async function daily() {
   const posts = await readBlogspotRSS();
+  posts.forEach((post, index) => {
+    //print title and date for each post found
+    console.log(`${index + 1}. Title: ${post.title}`);
+    console.log(`   Published: ${post.pubDate}`);
+  });
   const randomNumber = Math.floor(Math.random() * posts.length);
   const post = posts[randomNumber];
 
