@@ -212,7 +212,8 @@ async function readBlogspotJSON() {
 }
 
 async function readBlogspotRSS() {
-  let iter = 1; // must start at 1
+  let iter = 2; // must start at 1
+  // if we iter from 2, do we get all 25 recs?
   const page = 25;
   let posts = [];
   const parser = new rss_parser_1.default();
