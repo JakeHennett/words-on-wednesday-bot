@@ -118,6 +118,7 @@ async function saturday() {
 
 async function daily() {
   const posts = await readBlogspotRSS();
+  // const posts = await readBlogspotJSON();
   posts.forEach((post, index) => {
     //print title and date for each post found
     console.log(`${index + 1}. Title: ${post.title}`);
@@ -179,36 +180,60 @@ async function createPost(postText, postLink, postTitle, postDescription) {
   console.log("Just posted with rich embed!");
 }
 
-async function readBlogspotRSS() {
+const axios = require("axios");
+
+async function readBlogspotJSON() {
   let iter = 1;
   const page = 25;
-  let rssURL = ``;
-  let posts = new Array(); // An empty array that can store any type
-  const parser = new rss_parser_1.default();
-  //dynamic
+  let posts = [];
+
   while (true) {
-    rssURL = `https://jakehennett.blogspot.com/feeds/posts/default?max-results=${page}&start-index=${iter}`;
-    console.log(rssURL);
-    const feed = await parser.parseURL(rssURL);
-    console.log(feed.items.length);
-    if (feed.items.length <= 0) break;
-    feed.items.forEach((item) => {
-      posts.push(item);
+    const rssURL = `https://jakehennett.blogspot.com/feeds/posts/default?alt=json&max-results=${page}&start-index=${iter}`;
+    console.log("Fetching:", rssURL);
+
+    const { data } = await axios.get(rssURL);
+
+    // Blogger JSON feed puts entries under feed.entry
+    const entries = data.feed?.entry || [];
+    if (entries.length === 0) break;
+
+    entries.forEach((entry) => {
+      posts.push({
+        title: entry.title?.$t,
+        link: entry.link?.find((l) => l.rel === "alternate")?.href,
+        pubDate: entry.published?.$t,
+      });
     });
+
     iter += page;
   }
-  //   console.log("We should have a full list of all posts here");
-  //   let displayCount = 1;
-  //   posts.forEach((post) => {
-  //     console.log(displayCount);
-  //     displayCount++;
-  //     console.log(`Title: ${post.title}`);
-  //     console.log(`Link: ${post.link}`);
-  //     console.log(`Published: ${post.pubDate}`);
-  //     console.log("---");
-  //   });
+
   return posts;
 }
+
+async function readBlogspotRSS() {
+  let iter = 1; // must start at 1
+  const page = 25;
+  let posts = [];
+  const parser = new rss_parser_1.default();
+
+  while (true) {
+    const rssURL = `https://jakehennett.blogspot.com/feeds/posts/default?max-results=${page}&start-index=${iter}`;
+    console.log("Fetching:", rssURL);
+
+    const feed = await parser.parseURL(rssURL);
+    console.log("Got", feed.items.length, "items");
+
+    if (feed.items.length === 0) break;
+
+    posts.push(...feed.items);
+
+    iter += page;
+  }
+
+  return posts;
+}
+
 // readBlogspotRSS();
 daily(); //uncomment this to post a random post
 // Run this on a cron job
