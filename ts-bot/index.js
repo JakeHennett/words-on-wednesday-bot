@@ -218,6 +218,14 @@ async function readBlogspotRSS() {
   let posts = [];
   const parser = new rss_parser_1.default();
 
+  // get first post
+  const feed = await parser.parseURL(
+    `https://jakehennett.blogspot.com/feeds/posts/default?max-results=1&start-index=1`
+  );
+  console.log("Got", feed.items.length, "items");
+  posts.push(...feed.items);
+
+  // get remaining posts
   while (true) {
     const rssURL = `https://jakehennett.blogspot.com/feeds/posts/default?max-results=${page}&start-index=${iter}`;
     console.log("Fetching:", rssURL);
